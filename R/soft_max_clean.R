@@ -7,7 +7,7 @@ ui <- fluidPage(
   
   # App title ----
   titlePanel("Uploading Files"),
-  
+  #d
   # Sidebar layout with input and output definitions ----
   sidebarLayout(
     
