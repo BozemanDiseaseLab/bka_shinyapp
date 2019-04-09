@@ -19,7 +19,7 @@ ui <- fluidPage(
                 multiple = FALSE,
                 accept = c(".xlsx")),
       downloadButton("downloadData","Download"),
-      
+      downloadButton("downloadReport", "Generate report"),
       # Horizontal line ----
       tags$hr()
     ),
@@ -50,6 +50,28 @@ server <- function(input, output) {
     content = function(file) {
       write.csv(Mydata(), file)
     })
+  
+  output$downloadReport <- downloadHandler(
+    filename = paste("report-", Sys.Date(), ".csv", sep=""),
+    content = function(file) {
+      # Copy the report file to a temporary directory before processing it, in
+      # case we don't have write permissions to the current working dir (which
+      # can happen when deployed).
+      tempReport <- file.path(tempdir(), "report.Rmd")
+      file.copy("report.Rmd", tempReport, overwrite = TRUE)
+    
+      #params <- list(n = input$slider)
+      
+      # Knit the document, passing in the `params` list, and eval it in a
+      # child of the global environment (this isolates the code in the document
+      # from the code in this app).
+      rmarkdown::render(tempReport, output_file = file,
+                        #params = params,
+                        envir = new.env(parent = globalenv())
+      )
+    }
+  )
+    
 }
 # Run the app ----
 shinyApp(ui, server)
